@@ -25,6 +25,7 @@ public class Hospede extends Thread {
 
     public boolean isEmPasseio() {
         return emPasseio;
+
     }
 
     //    getter e setter do idHospede
