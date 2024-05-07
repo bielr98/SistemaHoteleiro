@@ -8,6 +8,7 @@ public class Camareira extends Thread {
 
 
     public Camareira(int idCamareira) {
+        super("Camareira-" + idCamareira); // Dando um nome mais descritivo à thread
         this.idCamareira = idCamareira;
         this.disponivel = true;
         this.quartosParaLimpar = new ArrayList<>();
@@ -25,6 +26,11 @@ public class Camareira extends Thread {
 
     public synchronized boolean isDisponivel() {
         return disponivel;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Camareira[ID=%d, Disponível=%s]", idCamareira, disponivel ? "Sim" : "Não");
     }
 
     @Override

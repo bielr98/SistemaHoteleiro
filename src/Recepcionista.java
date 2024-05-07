@@ -6,6 +6,7 @@ public class Recepcionista extends Thread {
     private List<Quarto> quartosDisponiveis;
 
     public Recepcionista(int idRecepcionista) {
+        super("Recepcionista-" + idRecepcionista); // Dando um nome mais descritivo à thread
         this.idRecepcionista = idRecepcionista;
         this.quartosDisponiveis = new ArrayList<>();
     }
@@ -31,6 +32,11 @@ public class Recepcionista extends Thread {
     }
 
     @Override
+    public String toString() {
+        return String.format("Recepcionista[ID=%d, Quartos Disponíveis=%d]", idRecepcionista, quartosDisponiveis.size());
+    }
+
+    @Override
     public void run() {
         while (true) {
             // Implementar lógica de alocação de quartos, ou outras tarefas relacionadas
@@ -41,4 +47,6 @@ public class Recepcionista extends Thread {
             }
         }
     }
+
+
 }

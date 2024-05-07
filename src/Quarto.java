@@ -61,7 +61,20 @@ public class Quarto {
         return capacidadeMaxima;
     }
 
+    public int getNumeroDoQuarto() {
+        return numeroDoQuarto;
+    }
+
 
     // Outros getters e setters conforme necessário
+    @Override
+    public String toString() {
+        return "Quarto{" +
+                "numero=" + numeroDoQuarto +
+                ", ocupado=" + ocupado +
+                ", hospedes=" + hospedesAtualmente +
+                '}';
+    }
+
 
 }

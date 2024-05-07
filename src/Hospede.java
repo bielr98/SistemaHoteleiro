@@ -4,6 +4,7 @@ public class Hospede extends Thread {
     private boolean emPasseio;
 
     public Hospede(int idHospede) {
+        super("Hospede-" + idHospede); // Dando um nome mais descritivo à thread
         this.idHospede = idHospede;
         this.quartoAlocado = null; // Inicialmente, não está alocado em nenhum quarto
         this.emPasseio = false;    // Inicialmente, não está em passeio
@@ -35,6 +36,13 @@ public class Hospede extends Thread {
 
     public void setIdHospede(int idHospede) {
         this.idHospede = idHospede;
+    }
+
+    @Override
+    public String toString() {
+        String quartoInfo = (quartoAlocado != null) ? String.valueOf(quartoAlocado.getNumeroDoQuarto()) : "Nenhum";
+        return String.format("Hospede[ID=%d, Quarto=%s, Em Passeio=%s]",
+                idHospede, quartoInfo, emPasseio ? "Sim" : "Não");
     }
 
     @Override
