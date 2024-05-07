@@ -12,4 +12,18 @@ public class Quarto {
         this.ocupado = false; // Inicia como não ocupado
         this.chaveNaRecepcao = true; // Chave começa na recepção
     }
+
+    // Método para definir a situação da chave
+    public synchronized void setChaveNaRecepcao(boolean chaveNaRecepcao) {
+        this.chaveNaRecepcao = chaveNaRecepcao;
+    }
+
+
+    // Método para obter a situação atual da chave
+    public synchronized boolean isChaveNaRecepcao() {
+        return this.chaveNaRecepcao;
+    }
+
+    // Outros getters e setters conforme necessário
+
 }
