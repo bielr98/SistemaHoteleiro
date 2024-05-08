@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Recepcionista extends Thread {
@@ -6,7 +7,7 @@ public class Recepcionista extends Thread {
     private List<Quarto> quartosDisponiveis;
 
     public Recepcionista(int idRecepcionista) {
-        super("Recepcionista-" + idRecepcionista); // Dando um nome mais descritivo à thread
+        super("Recepcionista-" + idRecepcionista);
         this.idRecepcionista = idRecepcionista;
         this.quartosDisponiveis = new ArrayList<>();
     }
@@ -18,18 +19,19 @@ public class Recepcionista extends Thread {
     }
 
     public synchronized boolean alocarQuarto(Hospede hospede) {
-        if (!quartosDisponiveis.isEmpty()) {
-            for (Quarto quarto : quartosDisponiveis) {
-                if (!quarto.isOcupado() && quarto.getHospedesAtualmente() < quarto.getCapacidadeMaxima()) {
-                    quarto.setOcupado(true);  // Definindo o quarto como ocupado
-                    hospede.setQuartoAlocado(quarto);
-                    quartosDisponiveis.remove(quarto);
-                    return true;
-                }
+        Iterator<Quarto> iterator = quartosDisponiveis.iterator();
+        while (iterator.hasNext()) {
+            Quarto quarto = iterator.next();
+            if (!quarto.isOcupado() && quarto.isChaveNaRecepcao()) {
+                quarto.setOcupado(true);
+                hospede.setQuartoAlocado(quarto);
+                iterator.remove(); // Remover o quarto da lista de quartos disponíveis
+                return true;
             }
         }
         return false;
     }
+
 
     @Override
     public String toString() {
@@ -38,15 +40,6 @@ public class Recepcionista extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            // Implementar lógica de alocação de quartos, ou outras tarefas relacionadas
-            try {
-                Thread.sleep(1000); // Simulação de delay para processamento
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        // Lógica do recepcionista ao longo do tempo (pode ser implementada conforme necessário)
     }
-
-
 }

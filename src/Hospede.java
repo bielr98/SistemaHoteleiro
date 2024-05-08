@@ -1,16 +1,17 @@
+import java.util.Random;
+
 public class Hospede extends Thread {
     private int idHospede;
-    private Quarto quartoAlocado; // Referência ao objeto Quarto
+    private Quarto quartoAlocado;
     private boolean emPasseio;
 
     public Hospede(int idHospede) {
-        super("Hospede-" + idHospede); // Dando um nome mais descritivo à thread
+        super("Hospede-" + idHospede);
         this.idHospede = idHospede;
-        this.quartoAlocado = null; // Inicialmente, não está alocado em nenhum quarto
-        this.emPasseio = false;    // Inicialmente, não está em passeio
+        this.quartoAlocado = null;
+        this.emPasseio = false;
     }
 
-    //Setter e Getter do Quarto
     public void setQuartoAlocado(Quarto quartoAlocado) {
         this.quartoAlocado = quartoAlocado;
     }
@@ -19,17 +20,14 @@ public class Hospede extends Thread {
         return quartoAlocado;
     }
 
-    //Setter e getter do emPasseio
     public void setEmPasseio(boolean emPasseio) {
         this.emPasseio = emPasseio;
     }
 
     public boolean isEmPasseio() {
         return emPasseio;
-
     }
 
-    //    getter e setter do idHospede
     public int getIdHospede() {
         return idHospede;
     }
@@ -47,27 +45,38 @@ public class Hospede extends Thread {
 
     @Override
     public void run() {
+        Random random = new Random();
         while (true) {
-            // Tentar alocar um quarto se ainda não tiver um
+            // Simular interação com recepcionista para alocar quarto
             if (quartoAlocado == null) {
-                // Simular interação com recepcionista para alocar quarto
-                // (Você precisará de uma maneira de acessar os recepcionistas aqui)
+                System.out.println("Hospede " + idHospede + " está procurando um quarto...");
+
+                // Simulando tempo para interação com recepcionista (entre 1 e 5 segundos)
+                try {
+                    Thread.sleep(random.nextInt(5000) + 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Simular alocar um quarto
+                if (quartoAlocado == null) {
+                    System.out.println("Hospede " + idHospede + " não encontrou um quarto disponível.");
+                }
             }
 
             // Simular o hóspede saindo para passear
             try {
-                Thread.sleep(1000); // Representa o tempo passeando
+                Thread.sleep(random.nextInt(5000) + 5000); // Tempo de passeio (entre 5 e 10 segundos)
                 setEmPasseio(true);
+                System.out.println("Hospede " + idHospede + " saiu para passear.");
+                Thread.sleep(random.nextInt(5000) + 5000); // Tempo de passeio
+                setEmPasseio(false);
+                System.out.println("Hospede " + idHospede + " voltou do passeio.");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            // Simular hóspede voltando do passeio
-            setEmPasseio(false);
-
-            // Implementar outras lógicas de comportamento conforme necessário
+            // Outras lógicas de comportamento podem ser implementadas aqui
         }
     }
-
-
 }

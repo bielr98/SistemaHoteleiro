@@ -1,14 +1,13 @@
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Camareira extends Thread {
     private int idCamareira;
     private boolean disponivel;
     private List<Quarto> quartosParaLimpar;
 
-
     public Camareira(int idCamareira) {
-        super("Camareira-" + idCamareira); // Dando um nome mais descritivo à thread
+        super("Camareira-" + idCamareira);
         this.idCamareira = idCamareira;
         this.disponivel = true;
         this.quartosParaLimpar = new ArrayList<>();
@@ -38,17 +37,15 @@ public class Camareira extends Thread {
         while (true) {
             try {
                 if (!quartosParaLimpar.isEmpty() && disponivel) {
-                    Quarto quarto = quartosParaLimpar.remove(0); // Assume que a camareira pega o primeiro quarto na lista
-                    // Simula o processo de limpeza
-                    Thread.sleep(1000); // Simular o tempo de limpeza
-                    quarto.setChaveNaRecepcao(true); // Devolver a chave para a recepção
-                    setDisponivel(true);
+                    Quarto quarto = quartosParaLimpar.remove(0);
+                    Thread.sleep(2000); // Simular o tempo de limpeza
+                    quarto.setChaveNaRecepcao(true);
+                    System.out.println("Camareira " + idCamareira + " limpou o Quarto " + quarto.getNumeroDoQuarto());
                 }
-                Thread.sleep(500); // Pequena pausa
+                Thread.sleep(1000); // Pequena pausa
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
-
 }
