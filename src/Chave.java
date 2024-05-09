@@ -1,6 +1,6 @@
 public class Chave {
     private Quarto quarto;
-    private Hospede guest;
+    private Hospede hospede;
 
     public Chave(Hospede hospede, Quarto quarto) {
         this.quarto = quarto;
