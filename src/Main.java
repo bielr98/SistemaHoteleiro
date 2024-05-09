@@ -1,57 +1,64 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-        // Variáveis conforme o comando do exercício
         final int NUMERO_DE_QUARTOS = 10;
         final int NUMERO_DE_HOSPEDES = 50;
         final int NUMERO_DE_CAMAREIRAS = 10;
         final int NUMERO_DE_RECEPCIONISTAS = 5;
 
-        // Lista de quartos no hotel
+        Random random = new Random();
         List<Quarto> quartos = new ArrayList<>();
-        for (int i = 0; i < NUMERO_DE_QUARTOS; i++) {
-            quartos.add(new Quarto(i + 1)); // Quartos numerados de 1 a 10
-        }
-        // Imprimir cada quarto em uma linha separada
-        quartos.forEach(quarto -> System.out.println(quarto));
-
-        // Lista de recepcionistas
+        List<Hospede> hospedes = new ArrayList<>();
         List<Recepcionista> recepcionistas = new ArrayList<>();
+        List<Camareira> camareiras = new ArrayList<>();
+
+        // Criar quartos
+        for (int i = 0; i < NUMERO_DE_QUARTOS; i++) {
+            quartos.add(new Quarto(i + 1));
+        }
+
+        // Criar recepcionistas e iniciar suas threads
         for (int i = 0; i < NUMERO_DE_RECEPCIONISTAS; i++) {
             Recepcionista recepcionista = new Recepcionista(i + 1);
             quartos.forEach(recepcionista::addQuartoDisponivel);
             recepcionistas.add(recepcionista);
             recepcionista.start();
         }
-        // Imprimir cada recepcionista em uma linha separada
-        recepcionistas.forEach(recepcionista -> System.out.println(recepcionista));
 
-        // Lista de camareiras
-        List<Camareira> camareiras = new ArrayList<>();
+        // Criar camareiras e iniciar suas threads
         for (int i = 0; i < NUMERO_DE_CAMAREIRAS; i++) {
             Camareira camareira = new Camareira(i + 1);
             camareiras.add(camareira);
             camareira.start();
         }
-        // Imprimir cada camareira em uma linha separada
-        camareiras.forEach(camareira -> System.out.println(camareira));
 
-        // Lista de hóspedes
-        List<Hospede> hospedes = new ArrayList<>();
-        for (int i = 0; i < NUMERO_DE_HOSPEDES; i++) {
-            Hospede hospede = new Hospede(i + 1, recepcionistas);
-            hospedes.add(hospede);
-            hospede.start();
+        // Criar hóspedes em intervalos aleatórios
+        while (hospedes.size() < NUMERO_DE_HOSPEDES) {
+            int numeroDeHospedes = 1 + random.nextInt(Math.min(10, NUMERO_DE_HOSPEDES - hospedes.size()));
+            for (int i = 0; i < numeroDeHospedes; i++) {
+                Hospede hospede = new Hospede(hospedes.size() + 1, recepcionistas);
+                hospedes.add(hospede);
+                hospede.start();
+            }
+
+            int sleepTime = 1 + random.nextInt(3); // Gera um número aleatório entre 1 e 3 segundos
+            try {
+                TimeUnit.SECONDS.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                break; // Encerra o loop se a thread for interrompida
+            }
         }
-        // Imprimir cada hóspede em uma linha separada
-        hospedes.forEach(hospede -> System.out.println(hospede));
 
-        // Aguardar o término de todos os hóspedes
+        // Esperar o término de todos os hóspedes
         for (Hospede hospede : hospedes) {
             try {
-                hospede.join(); // Espera todos os hóspedes terminarem suas atividades
+                hospede.join();
             } catch (InterruptedException e) {
                 System.err.println("A thread do hóspede foi interrompida.");
                 Thread.currentThread().interrupt(); // Boa prática ao lidar com InterruptedException

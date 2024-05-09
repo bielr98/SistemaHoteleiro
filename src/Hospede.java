@@ -1,9 +1,12 @@
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class Hospede extends Thread {
     private List<Recepcionista> recepcionistas;
     private int idHospede;
     private Quarto quartoAlocado; // Referência ao objeto Quarto
+    private Random random = new Random();  // Gerador de números aleatórios para o tempo de estadia
     private boolean emPasseio;
 
     public Hospede(int idHospede, List<Recepcionista> recepcionistas) {
@@ -30,7 +33,6 @@ public class Hospede extends Thread {
 
     public boolean isEmPasseio() {
         return emPasseio;
-
     }
 
     //    getter e setter do idHospede
@@ -65,11 +67,12 @@ public class Hospede extends Thread {
                 }
             }
 
-            // Permanecer no quarto por 3 segundos
-            Thread.sleep(3000);
+            // Permanecer no quarto por um tempo aleatório entre 1 e 3 segundos
+            int estadia = 1 + random.nextInt(5);
+            TimeUnit.SECONDS.sleep(estadia);
 
             // Liberar o quarto e encerrar a thread
-            System.out.println("Hóspede " + idHospede + " está saindo do quarto " + quartoAlocado.getNumeroDoQuarto());
+            System.out.println("Hóspede " + idHospede + " está saindo do quarto " + quartoAlocado.getNumeroDoQuarto() + " após " + estadia + " segundos.");
             recepcionistas.get(0).liberarQuarto(quartoAlocado); // Assume o primeiro recepcionista para simplificação
             setQuartoAlocado(null);
 
@@ -80,5 +83,4 @@ public class Hospede extends Thread {
             System.out.println("Hóspede " + idHospede + " completou sua estadia e está saindo do hotel.");
         }
     }
-
 }
