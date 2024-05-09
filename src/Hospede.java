@@ -1,73 +1,153 @@
+import java.util.Random;
+
 public class Hospede extends Thread {
-    private int idHospede;
-    private Quarto quartoAlocado; // Referência ao objeto Quarto
-    private boolean emPasseio;
+    private final Hotel hotel;
+    private final String nome;
+    private final int tamanhoDoGrupo;
+    private int hospedesSemQuarto;
+    private Chave chave;
+    private int numeroDoQuarto;
 
-    public Hospede(int idHospede) {
-        super("Hospede-" + idHospede); // Dando um nome mais descritivo à thread
-        this.idHospede = idHospede;
-        this.quartoAlocado = null; // Inicialmente, não está alocado em nenhum quarto
-        this.emPasseio = false;    // Inicialmente, não está em passeio
-    }
+    // Quantidade de vezes que o hóspede tentou se hospedar em um quarto.
+    private int qtdDeTentativas;
 
-    //Setter e Getter do Quarto
-    public void setQuartoAlocado(Quarto quartoAlocado) {
-        this.quartoAlocado = quartoAlocado;
-    }
-
-    public Quarto getQuartoAlocado() {
-        return quartoAlocado;
-    }
-
-    //Setter e getter do emPasseio
-    public void setEmPasseio(boolean emPasseio) {
-        this.emPasseio = emPasseio;
-    }
-
-    public boolean isEmPasseio() {
-        return emPasseio;
-
-    }
-
-    //    getter e setter do idHospede
-    public int getIdHospede() {
-        return idHospede;
-    }
-
-    public void setIdHospede(int idHospede) {
-        this.idHospede = idHospede;
-    }
-
-    @Override
-    public String toString() {
-        String quartoInfo = (quartoAlocado != null) ? String.valueOf(quartoAlocado.getNumeroDoQuarto()) : "Nenhum";
-        return String.format("Hospede[ID=%d, Quarto=%s, Em Passeio=%s]",
-                idHospede, quartoInfo, emPasseio ? "Sim" : "Não");
+    public Hospede(Hotel hotel, String nome, int tamanhoDoGrupo) {
+        this.hotel = hotel;
+        this.nome = nome;
+        this.tamanhoDoGrupo = tamanhoDoGrupo;
+        this.hospedesSemQuarto = tamanhoDoGrupo;
+        this.qtdDeTentativas = 0;
     }
 
     @Override
     public void run() {
-        while (true) {
-            // Tentar alocar um quarto se ainda não tiver um
-            if (quartoAlocado == null) {
-                // Simular interação com recepcionista para alocar quarto
-                // (Você precisará de uma maneira de acessar os recepcionistas aqui)
-            }
+        Random random = new Random();
+        try {
+            // Tempo aleatório de chegada do hóspede
+            Thread.sleep(random.nextInt(5000));
 
-            // Simular o hóspede saindo para passear
-            try {
-                Thread.sleep(1000); // Representa o tempo passeando
-                setEmPasseio(true);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // Simular hóspede voltando do passeio
-            setEmPasseio(false);
-
-            // Implementar outras lógicas de comportamento conforme necessário
+            // Tenta alocar o hóspede em um quarto
+            allocateGuestInTheRoom(random);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
+    private synchronized void allocateGuestInTheRoom(Random random) throws InterruptedException {
+        // Procura um quarto disponível no hotel
+        Quarto quarto = hotel.getQuartoDisponivel();
 
+        if (quarto != null) {
+            // Ocupa o quarto encontrado
+            occupyRoom(quarto, random);
+
+            // Verifica se ainda há hóspedes sem quarto alocado
+            if (this.hospedesSemQuarto <= 0) {
+                return;
+            } else {
+                // Tenta alocar os hóspedes restantes em outro quarto
+                allocateGuestInTheRoom(random);
+            }
+        } else {
+            // Aumenta o número de tentativas do hóspede
+            this.qtdDeTentativas += 1;
+
+            if (qtdDeTentativas >= 2) {
+                // Se o número de tentativas exceder o limite, o hóspede vai embora com uma reclamação
+                System.out.println("Hóspede " + this.nome + " não encontrou quartos disponíveis e saiu com uma reclamação.");
+                this.hotel.getHospedes().remove(this);
+                return;
+            } else {
+                // Adiciona o hóspede à lista de espera
+                hotel.addHospedeNaListaDeEspera(this);
+                System.out.println(nome + " adicionado à lista de espera.");
+            }
+        }
+    }
+
+    private void occupyRoom(Quarto quarto, Random random) throws InterruptedException {
+        this.hospedesSemQuarto -= quarto.getCapacidade();
+
+        // Sincroniza o acesso ao recepcionista
+        synchronized (hotel.getRecepcaoLock()) {
+            quarto.ocupadoEReservado();
+            this.chave = new Chave(this, quarto);
+            this.numeroDoQuarto = quarto.getNumeroDoQuarto();
+
+            if (this.hospedesSemQuarto > 0) {
+                System.out.println(nome + " ocupou quarto " + quarto.getNumeroDoQuarto() + " com um grupo de " + quarto.getCapacidade() + " hóspedes");
+            } else {
+                System.out.println(nome + " ocupou quarto " + quarto.getNumeroDoQuarto() + " com o grupo completo de " + this.tamanhoDoGrupo + " hóspedes");
+            }
+        }
+        // Tempo de estadia no quarto
+        Thread.sleep(random.nextInt(2000));
+
+        if (random.nextBoolean()) {
+            hangout(random);
+        }
+
+        // Mais um período de estadia no quarto
+        Thread.sleep(random.nextInt(2000));
+
+        // Libera o quarto
+        synchronized (hotel.getRecepcaoLock()) {
+            quarto.tornarDisponivel();
+            System.out.println(nome + " desocupou quarto " + quarto.getNumeroDoQuarto());
+        }
+    }
+
+    // Método que simula o hóspede saindo para passear
+    private void hangout(Random random) {
+        System.out.println(nome + " saiu do quarto...");
+        int index = this.hotel.getQuartos().indexOf(this.chave.getQuarto());
+        Quarto quarto = this.hotel.getQuartos().get(index);
+        quarto.tornarDisponivel();
+
+        Recepcionista r = selectReceptionist();
+
+        r.receiveKeyFromGuest(this);
+
+        try {
+            Thread.sleep(random.nextInt(1000));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        r.returnKeyToGuest(this);
+
+        System.out.println(nome + " voltou ao quarto");
+        quarto.ocupadoEReservado();
+    }
+
+    // Seleciona uma recepcionista de maneira aleatória
+    private Recepcionista selectReceptionist() {
+        try {
+            Random random = new Random();
+            int i = random.nextInt(hotel.getRecepcionistas().size());
+            return hotel.getRecepcionistas().get(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public int getTamanhoDoGrupo() {
+        return tamanhoDoGrupo;
+    }
+
+    public void setKey(Chave chave) {
+        this.chave = chave;
+    }
+
+    public Chave getKey() {
+        return chave;
+    }
+
+    public int getNumeroDoQuarto() {
+        return numeroDoQuarto;
+    }
 }

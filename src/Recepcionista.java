@@ -1,54 +1,78 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Semaphore;
+
 
 public class Recepcionista extends Thread {
-    private int idRecepcionista;
-    private List<Quarto> quartosDisponiveis;
+    private final Hotel hotel;
+    private List<Chave> chaves = new ArrayList<Chave> ();
+    private Semaphore semaphore = new Semaphore (1);
 
-    public Recepcionista(int idRecepcionista) {
-        super("Recepcionista-" + idRecepcionista); // Dando um nome mais descritivo à thread
-        this.idRecepcionista = idRecepcionista;
-        this.quartosDisponiveis = new ArrayList<>();
-    }
-
-//    public synchronized void addQuartoDisponivel(Quarto quarto) {
-//        if (!quartosDisponiveis.contains(quarto) && quarto.isChaveNaRecepcao()) {
-//            quartosDisponiveis.add(quarto);
-//        }
-//    }
-
-//    public synchronized boolean alocarQuarto(Hospede hospede) {
-//        if (!quartosDisponiveis.isEmpty()) {
-//            for (Quarto quarto : quartosDisponiveis) {
-//                if (!quarto.isOcupado() && quarto.getHospedesAtualmente() < quarto.getCapacidadeMaxima()) {
-//                    quarto.setOcupado(true);  // Definindo o quarto como ocupado
-//                    hospede.setQuartoAlocado(quarto);
-//                    quartosDisponiveis.remove(quarto);
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-//    }
-
-    @Override
-    public String toString() {
-        return String.format("Recepcionista[ID=%d, Quartos Disponíveis=%d]", idRecepcionista, quartosDisponiveis.size());
+    public Recepcionista(Hotel hotel) {
+        this.hotel = hotel;
     }
 
     @Override
     public void run() {
+        Random random = new Random();
         while (true) {
-            // Implementar lógica de alocação de quartos, ou outras tarefas relacionadas
+            synchronized (hotel.getRecepcaoLock()) {
+                Hospede hospede = hotel.getNextGuestFromWaitingList();
+                if (hospede != null) {
+                    hospede.run();
+                }
+            }
+
             try {
-                Thread.sleep(1000); // Simulação de delay para processamento
+                Thread.sleep(random.nextInt(5000)); // Random wait time before next allocation attempt
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    // FUNCOES RELACIONADAS AS CHAVES
 
-    public void addQuartoDisponivel(Quarto quarto) {
+    // receber a chave do hospede (simplesmente armazena na lista.
+    public void receiveKeyFromGuest (Hospede hospede) {
+        try {
+            semaphore.acquire();
+            Chave chaveGuest = hospede.getKey();
+            hospede.setKey(null);
+
+            chaves.add(chaveGuest);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            semaphore.release();
+        }
+    }
+
+    // retornar chaves para o hospede
+    public Chave returnKeyToGuest (Hospede hospede) {
+        try {
+            semaphore.acquire();
+            for (Chave chave : chaves) {
+                if (chave.getQuarto().getNumeroDoQuarto() == hospede.getNumeroDoQuarto()) {
+
+                    this.chaves.remove(chave);
+                    hospede.setKey(chave);
+
+
+                    return chave;
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            semaphore.release();
+        }
+
+        return null;
+    }
+
+    public Semaphore getSemaphore() {
+        return semaphore;
     }
 }

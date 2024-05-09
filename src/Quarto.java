@@ -1,7 +1,11 @@
 public class Quarto {
     private final int numeroDoQuarto;
+
+    //o quarto esta ocupado ou não (quando o hóspede sai por um tempo do quarto ele não fica ocupado, entretanto a vaiável isReserved vai continuar true
     private boolean ocupado;
     private boolean limpo;
+
+    // essa variavel diz respeito o quarto está reservado ou não.
     private boolean reservado;
 
     public Quarto(int numeroDoQuarto) {
@@ -56,16 +60,4 @@ public class Quarto {
     public int getCapacidade() {
         return 4; // Assuming each room has a capacity of 4 guests
     }
-
-
-    // Outros getters e setters conforme necessário
-    @Override
-    public String toString() {
-        return "Quarto[" +
-                "numero=" + numeroDoQuarto +
-                ", ocupado=" + ocupado +
-                ']';
-    }
-
-
 }

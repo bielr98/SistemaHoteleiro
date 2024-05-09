@@ -1,70 +1,108 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Hotel {
-    private List<Quarto> quartos;
-    private List<Recepcionista> recepcionistas;
-    private List<Camareira> camareiras;
-    private List<Hospede> hospedes;
+    //Variaveis Conforme o comando do exercício
+    private static final int NUMERO_DE_QUARTOS = 10;
+    private static final int NUMERO_DE_HOSPEDES = 50;
+    private static final int NUMERO_DE_CAMAREIRAS = 10;
+    private static final int NUMERO_DE_RECEPCIONISTAS = 5;
 
-    public Hotel(int numeroDeQuartos, int numeroDeHospedes, int numeroDeCamareiras, int numeroDeRecepcionistas) {
-        quartos = new ArrayList<>();
-        recepcionistas = new ArrayList<>();
-        camareiras = new ArrayList<>();
-        hospedes = new ArrayList<>();
+    private final List<Quarto> quartos = new ArrayList<>();
+    private final List<Hospede> hospedes = new ArrayList<>();
+    private final List<Camareira> camareiras = new ArrayList<>();
+    private final List<Recepcionista> recepcionistas = new ArrayList<>();
+    private final Queue<Hospede> listaDeEspera = new LinkedList<>();
 
-        // Inicializa todas as entidades do hotel
-        inicializarQuartos(numeroDeQuartos);
-        inicializarRecepcionistas(numeroDeRecepcionistas);
-        inicializarCamareiras(numeroDeCamareiras);
-        inicializarHospedes(numeroDeHospedes);
-    }
+    private final Object recepcaoLock = new Object();
+    private final Object camareiraLock = new Object();
+    private final Object hospedeLock = new Object();
 
-    private void inicializarQuartos(int numeroDeQuartos) {
-        for (int i = 0; i < numeroDeQuartos; i++) {
+    public Hotel() {
+        // Inicia quartos de acordo com o Numero de quartos total
+        for (int i = 0; i < NUMERO_DE_QUARTOS; i++) {
             quartos.add(new Quarto(i + 1));
-            System.out.println("Quarto " + (i + 1) + " criado.");
+        }
+
+        // Inicia camareiras de acordo com o Numero de camareiras total
+        for (int i = 0; i < NUMERO_DE_CAMAREIRAS; i++) {
+            camareiras.add(new Camareira(this));
+        }
+
+        // Inicia recepcionistas
+        for (int i = 0; i < NUMERO_DE_RECEPCIONISTAS; i++) {
+            recepcionistas.add(new Recepcionista(this));
+        }
+
+        // Inicia Hospedes
+        for (int i = 0; i < NUMERO_DE_HOSPEDES; i++) {
+            hospedes.add(new Hospede(this, "Hospede " + i, 1 + (int) (Math.random() * 12))); // Group size between 1 and 12
         }
     }
 
-    private void inicializarRecepcionistas(int numeroDeRecepcionistas) {
-        for (int i = 0; i < numeroDeRecepcionistas; i++) {
-            Recepcionista recepcionista = new Recepcionista(i + 1);
-            quartos.forEach(recepcionista::addQuartoDisponivel);
-            recepcionistas.add(recepcionista);
-            System.out.println("Recepcionista " + (i + 1) + " criado e quartos disponíveis adicionados.");
-        }
-    }
-
-    private void inicializarCamareiras(int numeroDeCamareiras) {
-        for (int i = 0; i < numeroDeCamareiras; i++) {
-            Camareira camareira = new Camareira(i + 1);
-            camareiras.add(camareira);
-            System.out.println("Camareira " + (i + 1) + " criada.");
-        }
-    }
-
-    private void inicializarHospedes(int numeroDeHospedes) {
-        for (int i = 0; i < numeroDeHospedes; i++) {
-            Hospede hospede = new Hospede(i + 1);
-            hospedes.add(hospede);
-            System.out.println("Hóspede " + (i + 1) + " criado.");
-        }
-    }
-
-    public void startSimulation() {
-        System.out.println("Iniciando simulação do hotel.");
-        recepcionistas.forEach(Thread::start);
-        camareiras.forEach(Thread::start);
-        hospedes.forEach(Thread::start);
-
-        for (Hospede hospede : hospedes) {
-            try {
-                hospede.join(); // Aguarda a finalização de cada hóspede
-            } catch (InterruptedException e) {
-                System.err.println("A thread do hóspede foi interrompida.");
+    public Quarto getQuartoDisponivel() {
+        synchronized (recepcaoLock) {
+            for (Quarto quarto : quartos) {
+                if (quarto.disponivel()) {
+                    return quarto;
+                }
             }
         }
-        System.out.println("Simulação do hotel concluída.");
+        return null;
     }
+
+//    public Quarto getAvailableRoomForGroup(int groupSize) {
+//        synchronized (recepcaoLock) {
+//            for (Quarto quarto : quartos) {
+//                if (quarto.isAvailable() && quarto.getCapacity() >= groupSize) {
+//                    return quarto;
+//                }
+//            }
+//        }
+//        return null;
+//    }
+
+    public void addHospedeNaListaDeEspera(Hospede hospede) {
+        synchronized (hospedeLock) {
+            listaDeEspera.add(hospede);
+        }
+    }
+
+    public Hospede getNextGuestFromWaitingList() {
+        synchronized (hospedeLock) {
+            return listaDeEspera.poll();
+        }
+    }
+
+    public Object getRecepcaoLock() {
+        return recepcaoLock;
+    }
+
+    public Object getCamareiraLock() {
+        return camareiraLock;
+    }
+
+    public List<Quarto> getQuartos() {
+        return quartos;
+    }
+
+    public List<Hospede> getHospedes() {
+        return hospedes;
+    }
+
+    public List<Camareira> getCamareiras() {
+        return camareiras;
+    }
+
+    public List<Recepcionista> getRecepcionistas() {
+        return recepcionistas;
+    }
+
+    public Queue<Hospede> getListaDeEspera() {
+        return listaDeEspera;
+    }
+
+
 }
