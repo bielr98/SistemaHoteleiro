@@ -1,10 +1,14 @@
+import java.util.List;
+
 public class Hospede extends Thread {
+    private List<Recepcionista> recepcionistas;
     private int idHospede;
     private Quarto quartoAlocado; // Referência ao objeto Quarto
     private boolean emPasseio;
 
-    public Hospede(int idHospede) {
+    public Hospede(int idHospede, List<Recepcionista> recepcionistas) {
         super("Hospede-" + idHospede); // Dando um nome mais descritivo à thread
+        this.recepcionistas = recepcionistas;
         this.idHospede = idHospede;
         this.quartoAlocado = null; // Inicialmente, não está alocado em nenhum quarto
         this.emPasseio = false;    // Inicialmente, não está em passeio
@@ -50,9 +54,12 @@ public class Hospede extends Thread {
         while (true) {
             // Tentar alocar um quarto se ainda não tiver um
             if (quartoAlocado == null) {
-                // Simular interação com recepcionista para alocar quarto
-                // (Você precisará de uma maneira de acessar os recepcionistas aqui)
+                for (Recepcionista recepcionista : recepcionistas) {
+                    if (recepcionista.alocarQuarto(this)) {
+                        break; // Parar de procurar quartos após encontrar um disponível
+                }
             }
+        }
 
             // Simular o hóspede saindo para passear
             try {

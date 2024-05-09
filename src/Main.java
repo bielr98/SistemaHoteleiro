@@ -46,10 +46,10 @@ public class Main {
             System.out.println(camareira);
         }
 
-        // Lista de hospedes
+// Lista de hospedes
         List<Hospede> hospedes = new ArrayList<>();
         for (int i = 0; i < NUMERO_DE_HOSPEDES; i++) {
-            Hospede hospede = new Hospede(i + 1);
+            Hospede hospede = new Hospede(i + 1, recepcionistas);
             hospedes.add(hospede);
             hospede.start();
         }
