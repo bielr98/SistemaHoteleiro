@@ -11,25 +11,25 @@ public class Recepcionista extends Thread {
         this.quartosDisponiveis = new ArrayList<>();
     }
 
-    public synchronized void addQuartoDisponivel(Quarto quarto) {
-        if (!quartosDisponiveis.contains(quarto) && quarto.isChaveNaRecepcao()) {
-            quartosDisponiveis.add(quarto);
-        }
-    }
+//    public synchronized void addQuartoDisponivel(Quarto quarto) {
+//        if (!quartosDisponiveis.contains(quarto) && quarto.isChaveNaRecepcao()) {
+//            quartosDisponiveis.add(quarto);
+//        }
+//    }
 
-    public synchronized boolean alocarQuarto(Hospede hospede) {
-        if (!quartosDisponiveis.isEmpty()) {
-            for (Quarto quarto : quartosDisponiveis) {
-                if (!quarto.isOcupado() && quarto.getHospedesAtualmente() < quarto.getCapacidadeMaxima()) {
-                    quarto.setOcupado(true);  // Definindo o quarto como ocupado
-                    hospede.setQuartoAlocado(quarto);
-                    quartosDisponiveis.remove(quarto);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+//    public synchronized boolean alocarQuarto(Hospede hospede) {
+//        if (!quartosDisponiveis.isEmpty()) {
+//            for (Quarto quarto : quartosDisponiveis) {
+//                if (!quarto.isOcupado() && quarto.getHospedesAtualmente() < quarto.getCapacidadeMaxima()) {
+//                    quarto.setOcupado(true);  // Definindo o quarto como ocupado
+//                    hospede.setQuartoAlocado(quarto);
+//                    quartosDisponiveis.remove(quarto);
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
 
     @Override
     public String toString() {
@@ -49,4 +49,6 @@ public class Recepcionista extends Thread {
     }
 
 
+    public void addQuartoDisponivel(Quarto quarto) {
+    }
 }

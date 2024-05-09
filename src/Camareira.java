@@ -41,7 +41,7 @@ public class Camareira extends Thread {
                     Quarto quarto = quartosParaLimpar.remove(0); // Assume que a camareira pega o primeiro quarto na lista
                     // Simula o processo de limpeza
                     Thread.sleep(1000); // Simular o tempo de limpeza
-                    quarto.setChaveNaRecepcao(true); // Devolver a chave para a recepção
+//                    quarto.setChaveNaRecepcao(true); // Devolver a chave para a recepção
                     setDisponivel(true);
                 }
                 Thread.sleep(500); // Pequena pausa
