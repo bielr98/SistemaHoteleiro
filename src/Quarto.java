@@ -1,63 +1,72 @@
 public class Quarto {
-    private final int numeroDoQuarto;
+    private final int numeroDoQuarto;  // Número identificador do quarto
 
-    //o quarto esta ocupado ou não (quando o hóspede sai por um tempo do quarto ele não fica ocupado, entretanto a vaiável isReserved vai continuar true
+    // Estado do quarto: se está ocupado por algum hóspede
     private boolean ocupado;
+    // Estado de limpeza do quarto: se está limpo ou não
     private boolean limpo;
-
-    // essa variavel diz respeito o quarto está reservado ou não.
+    // Estado de reserva do quarto: se está reservado ou não
     private boolean reservado;
 
+    // Construtor para inicializar o quarto com um número específico
     public Quarto(int numeroDoQuarto) {
         this.numeroDoQuarto = numeroDoQuarto;
-        this.ocupado = false;
-        this.limpo = true;
-        this.reservado = false;
+        this.ocupado = false;  // Inicialmente o quarto não está ocupado
+        this.limpo = true;     // Inicialmente o quarto está limpo
+        this.reservado = false; // Inicialmente o quarto não está reservado
     }
 
+    // Método para verificar se o quarto está disponível para alocação
     public synchronized boolean disponivel() {
+        // Um quarto disponível não está reservado e está limpo
         return !reservado && limpo;
     }
 
+    // Método para marcar o quarto como ocupado, não limpo e reservado
     public synchronized void ocupadoEReservado() {
         ocupado = true;
         limpo = false;
         reservado = true;
     }
 
+    // Método para tornar o quarto disponível, ou seja, desocupado e não reservado
     public synchronized void tornarDisponivel() {
         ocupado = false;
         reservado = false;
     }
 
+    // Método para marcar o quarto como limpo
     public synchronized void tornarLimpo() {
         limpo = true;
     }
 
+    // Método para verificar se o quarto está limpo
     public synchronized boolean estaLimpo() {
         return limpo;
     }
 
-    // FUNCOES QUE DIZEM RESPEITO A FUNCIONALIDADE DO HOSPEDE SAIR DO QUARTO POR UM TEMPO
+    // Método para simular o hóspede saindo do quarto por um tempo
     public synchronized void getOut() {
         this.ocupado = false;
     }
 
-    public synchronized void getBackToTheRoom () {
+    // Método para simular o hóspede retornando ao quarto
+    public synchronized void getBackToTheRoom() {
         this.ocupado = true;
     }
 
-    // GETTERS
-
+    // Getter para o estado de ocupação do quarto
     public boolean getOcupado() {
         return ocupado;
     }
 
+    // Getter para o número do quarto
     public int getNumeroDoQuarto() {
         return numeroDoQuarto;
     }
 
+    // Getter para a capacidade do quarto, assumindo uma capacidade padrão de 4 hóspedes
     public int getCapacidade() {
-        return 4; // Assuming each room has a capacity of 4 guests
+        return 4;
     }
 }
