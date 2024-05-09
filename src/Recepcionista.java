@@ -35,7 +35,7 @@ public class Recepcionista extends Thread {
 
     public synchronized void liberarQuarto(Quarto quarto) {
         if (quarto != null) {
-            quarto.setOcupado(false);
+            quarto.setOcupado(false); //Seta como Disponivel
             quarto.setChaveNaRecepcao(true); // Devolve a chave para a recepção
             if (!quartosDisponiveis.contains(quarto) && quarto.isChaveNaRecepcao()) {
                 quartosDisponiveis.add(quarto); // Adiciona de volta à lista de quartos disponíveis

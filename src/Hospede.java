@@ -35,7 +35,7 @@ public class Hospede extends Thread {
         return emPasseio;
     }
 
-    //    getter e setter do idHospede
+    // getter e setter do idHospede
     public int getIdHospede() {
         return idHospede;
     }
@@ -54,11 +54,12 @@ public class Hospede extends Thread {
     @Override
     public void run() {
         try {
-            // Tentar alocar um quarto
+            // Tentativa única de alocar um quarto
             while (quartoAlocado == null) {
                 System.out.println("Hóspede " + idHospede + " está tentando alocar um quarto...");
                 for (Recepcionista recepcionista : recepcionistas) {
                     if (recepcionista.alocarQuarto(this)) {
+                        System.out.println("Hóspede " + idHospede + " alocou o quarto " + quartoAlocado.getNumeroDoQuarto());
                         break; // Saia do loop assim que um quarto for alocado
                     }
                 }
@@ -70,12 +71,11 @@ public class Hospede extends Thread {
             // Permanecer no quarto por um tempo aleatório entre 1 e 3 segundos
             int estadia = 1 + random.nextInt(5);
             TimeUnit.SECONDS.sleep(estadia);
-
-            // Liberar o quarto e encerrar a thread
             System.out.println("Hóspede " + idHospede + " está saindo do quarto " + quartoAlocado.getNumeroDoQuarto() + " após " + estadia + " segundos.");
+
+            // Liberar o quarto
             recepcionistas.get(0).liberarQuarto(quartoAlocado); // Assume o primeiro recepcionista para simplificação
             setQuartoAlocado(null);
-
         } catch (InterruptedException e) {
             e.printStackTrace();
             Thread.currentThread().interrupt(); // Restaurar o status de interrupção
