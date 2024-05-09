@@ -69,11 +69,11 @@ public class Quarto {
     // Outros getters e setters conforme necessário
     @Override
     public String toString() {
-        return "Quarto{" +
+        return "Quarto[" +
                 "numero=" + numeroDoQuarto +
                 ", ocupado=" + ocupado +
                 ", hospedes=" + hospedesAtualmente +
-                '}';
+                ']';
     }
 
 
