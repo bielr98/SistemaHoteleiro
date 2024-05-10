@@ -36,5 +36,4 @@ O sistema deve ser capaz de simular várias situações, incluindo:
 - Grupos com mais de 4 pessoas.
 - Todos os quartos estando ocupados simultaneamente.
 
-## Execução e Testes
-Instruções detalhadas para compilar e executar o sistema, além de como realizar testes para verificar a correta implementação das regras.
+  
