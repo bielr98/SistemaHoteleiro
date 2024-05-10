@@ -1,72 +1,92 @@
 public class Quarto {
-    private final int numeroDoQuarto;  // Número identificador do quarto
-
-    // Estado do quarto: se está ocupado por algum hóspede
+    private int numeroDoQuarto;
+    private final int capacidadeMaxima;
+    private int hospedesAtualmente;
     private boolean ocupado;
-    // Estado de limpeza do quarto: se está limpo ou não
-    private boolean limpo;
-    // Estado de reserva do quarto: se está reservado ou não
-    private boolean reservado;
+    private boolean chaveNaRecepcao;
+    private boolean limpo; // Novo atributo para controlar se o quarto está limpo
 
-    // Construtor para inicializar o quarto com um número específico
+
     public Quarto(int numeroDoQuarto) {
-        this.numeroDoQuarto = numeroDoQuarto;
-        this.ocupado = false;  // Inicialmente o quarto não está ocupado
-        this.limpo = true;     // Inicialmente o quarto está limpo
-        this.reservado = false; // Inicialmente o quarto não está reservado
-    }
+        this.numeroDoQuarto = numeroDoQuarto; // Número do quarto é definido na criação
+        this.capacidadeMaxima = 4; // Capacidade máxima é sempre 4 e não muda
+        this.hospedesAtualmente = 0; // Inicia com 0 hóspedes
+        this.ocupado = false; // Inicia como não ocupado
+        this.chaveNaRecepcao = true; // Chave começa na recepção
+        this.limpo = true; // Inicialmente, todos os quartos estão limpos
 
-    // Método para verificar se o quarto está disponível para alocação
-    public synchronized boolean disponivel() {
-        // Um quarto disponível não está reservado e está limpo
-        return !reservado && limpo;
     }
-
-    // Método para marcar o quarto como ocupado, não limpo e reservado
-    public synchronized void ocupadoEReservado() {
-        ocupado = true;
-        limpo = false;
-        reservado = true;
-    }
-
-    // Método para tornar o quarto disponível, ou seja, desocupado e não reservado
-    public synchronized void tornarDisponivel() {
-        ocupado = false;
-        reservado = false;
-    }
-
-    // Método para marcar o quarto como limpo
-    public synchronized void tornarLimpo() {
-        limpo = true;
-    }
-
-    // Método para verificar se o quarto está limpo
-    public synchronized boolean estaLimpo() {
+    // Métodos getters e setters para limpo
+    public synchronized boolean isLimpo() {
         return limpo;
     }
 
-    // Método para simular o hóspede saindo do quarto por um tempo
-    public synchronized void getOut() {
-        this.ocupado = false;
+    public synchronized void setLimpo(boolean limpo) {
+        this.limpo = limpo;
     }
 
-    // Método para simular o hóspede retornando ao quarto
-    public synchronized void getBackToTheRoom() {
-        this.ocupado = true;
+    // Método para definir a situação da chave
+    public synchronized void setChaveNaRecepcao(boolean chaveNaRecepcao) {
+        this.chaveNaRecepcao = chaveNaRecepcao;
     }
 
-    // Getter para o estado de ocupação do quarto
-    public boolean getOcupado() {
+
+    // Método para obter a situação atual da chave
+    public synchronized boolean isChaveNaRecepcao() {
+        return this.chaveNaRecepcao;
+    }
+
+    // Método para verificar se o quarto está ocupado
+    public synchronized boolean isOcupado() {
         return ocupado;
     }
 
-    // Getter para o número do quarto
+    // Método para definir o estado ocupado do quarto
+    public synchronized void setOcupado(boolean ocupado) {
+        this.ocupado = ocupado;
+    }
+
+    // Método para obter o número atual de hóspedes no quarto
+    public synchronized int getHospedesAtualmente() {
+        return hospedesAtualmente;
+    }
+
+
+    /**
+     * Altera a quantidade de hóspedes no quarto.
+     *
+     * @param numHospedes O número de hóspedes a ser adicionado ou subtraído.
+     *                     Valores positivos adicionam hóspedes, valores negativos removem hóspedes.
+     *                     A quantidade de hóspedes nunca excederá a capacidade máxima ou será menor que zero.
+     */
+
+    // Método para adicionar ou remover hóspedes do quarto
+    public synchronized void alterarHospedes(int numHospedes) {
+        this.hospedesAtualmente += numHospedes;
+        // Garantir que o número de hóspedes não exceda a capacidade máxima nem seja negativo
+        this.hospedesAtualmente = Math.min(this.hospedesAtualmente, capacidadeMaxima);
+        this.hospedesAtualmente = Math.max(this.hospedesAtualmente, 0);
+    }
+
+    // Método para obter a capacidade máxima de hóspedes no quarto
+    public int getCapacidadeMaxima() {
+        return capacidadeMaxima;
+    }
+
     public int getNumeroDoQuarto() {
         return numeroDoQuarto;
     }
 
-    // Getter para a capacidade do quarto, assumindo uma capacidade padrão de 4 hóspedes
-    public int getCapacidade() {
-        return 4;
+
+    // Outros getters e setters conforme necessário
+    @Override
+    public String toString() {
+        return "Quarto{" +
+                "numero=" + numeroDoQuarto +
+                ", ocupado=" + ocupado +
+                ", hospedes=" + hospedesAtualmente +
+                '}';
     }
+
+
 }

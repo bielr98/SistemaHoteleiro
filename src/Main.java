@@ -1,26 +1,70 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 public class Main {
     public static void main(String[] args) {
-        // Cria uma instância do hotel, inicializando todas as entidades necessárias
-        Hotel hotel = new Hotel();
-        hotel.monitorarEstadoDoHotel();  // Inicia o monitoramento do estado do hotel
+        final int NUMERO_DE_QUARTOS = 10;
+        final int NUMERO_DE_HOSPEDES = 50;
+        final int NUMERO_DE_CAMAREIRAS = 10;
+        final int NUMERO_DE_RECEPCIONISTAS = 5;
 
+        Random random = new Random();
+        List<Quarto> quartos = new ArrayList<>();
+        List<Hospede> hospedes = new ArrayList<>();
+        List<Recepcionista> recepcionistas = new ArrayList<>();
+        List<Camareira> camareiras = new ArrayList<>();
 
-        // Inicializa e inicia as threads das camareiras
-        for (Camareira camareira : hotel.getCamareiras()) {
-            new Thread(camareira).start();  // Cria uma nova thread para cada camareira e inicia sua execução
-            // As camareiras começam a verificar e limpar os quartos que estão desocupados e sujos
+        // Criar quartos
+        for (int i = 0; i < NUMERO_DE_QUARTOS; i++) {
+            quartos.add(new Quarto(i + 1));
         }
 
-        // Inicializa e inicia as threads dos recepcionistas
-        for (Recepcionista recepcionista : hotel.getRecepcionistas()) {
-            new Thread(recepcionista).start();  // Cria uma nova thread para cada recepcionista e inicia sua execução
-            // Os recepcionistas começam a gerenciar a recepção e o atendimento dos hóspedes na lista de espera
+        // Criar recepcionistas e iniciar suas threads
+        for (int i = 0; i < NUMERO_DE_RECEPCIONISTAS; i++) {
+            Recepcionista recepcionista = new Recepcionista(i + 1);
+            quartos.forEach(recepcionista::addQuartoDisponivel);
+            recepcionistas.add(recepcionista);
+            recepcionista.start();
         }
 
-        // Inicializa e inicia as threads dos hóspedes
-        for (Hospede hospede : hotel.getHospedes()) {
-            new Thread(hospede).start();  // Cria uma nova thread para cada hóspede e inicia sua execução
-            // Os hóspedes começam a tentar alocar quartos, ou são colocados em uma lista de espera se necessário
+        // Criar camareiras e iniciar suas threads
+        for (int i = 0; i < NUMERO_DE_CAMAREIRAS; i++) {
+            Camareira camareira = new Camareira(i + 1);
+            camareiras.add(camareira);
+            camareira.start();
         }
+
+        // Criar hóspedes em intervalos aleatórios
+        while (hospedes.size() < NUMERO_DE_HOSPEDES) {
+            int numeroDeHospedes = 1 + random.nextInt(Math.min(10, NUMERO_DE_HOSPEDES - hospedes.size()));
+            for (int i = 0; i < numeroDeHospedes; i++) {
+                Hospede hospede = new Hospede(hospedes.size() + 1, recepcionistas);
+                hospedes.add(hospede);
+                hospede.start();
+            }
+
+            int sleepTime = 1 + random.nextInt(3); // Gera um número aleatório entre 1 e 3 segundos
+            try {
+                TimeUnit.SECONDS.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                break; // Encerra o loop se a thread for interrompida
+            }
+        }
+
+        // Esperar o término de todos os hóspedes
+        for (Hospede hospede : hospedes) {
+            try {
+                hospede.join();
+            } catch (InterruptedException e) {
+                System.err.println("A thread do hóspede foi interrompida.");
+                Thread.currentThread().interrupt(); // Boa prática ao lidar com InterruptedException
+            }
+        }
+
+        System.out.println("Todos os hóspedes completaram suas estadias. Programa encerrando.");
     }
 }
