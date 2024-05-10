@@ -68,7 +68,7 @@ public class Hospede extends Thread {
                 }
             }
 
-            // Permanecer no quarto por um tempo aleatório entre 1 e 3 segundos
+            // Permanecer no quarto por um tempo aleatório entre 1 e 5 segundos
             int estadia = 1 + random.nextInt(5);
             TimeUnit.SECONDS.sleep(estadia);
             System.out.println("Hóspede " + idHospede + " está saindo do quarto " + quartoAlocado.getNumeroDoQuarto() + " após " + estadia + " segundos.");

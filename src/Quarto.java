@@ -4,6 +4,8 @@ public class Quarto {
     private int hospedesAtualmente;
     private boolean ocupado;
     private boolean chaveNaRecepcao;
+    private boolean limpo; // Novo atributo para controlar se o quarto está limpo
+
 
     public Quarto(int numeroDoQuarto) {
         this.numeroDoQuarto = numeroDoQuarto; // Número do quarto é definido na criação
@@ -11,6 +13,16 @@ public class Quarto {
         this.hospedesAtualmente = 0; // Inicia com 0 hóspedes
         this.ocupado = false; // Inicia como não ocupado
         this.chaveNaRecepcao = true; // Chave começa na recepção
+        this.limpo = true; // Inicialmente, todos os quartos estão limpos
+
+    }
+    // Métodos getters e setters para limpo
+    public synchronized boolean isLimpo() {
+        return limpo;
+    }
+
+    public synchronized void setLimpo(boolean limpo) {
+        this.limpo = limpo;
     }
 
     // Método para definir a situação da chave

@@ -33,6 +33,30 @@ public class Recepcionista extends Thread {
         return false;
     }
 
+//    public synchronized void addQuartoDisponivel(Quarto quarto) {
+//        if (!quartosDisponiveis.contains(quarto) && quarto.isChaveNaRecepcao() && quarto.isLimpo()) {
+//            quartosDisponiveis.add(quarto);
+//        }
+//    }
+
+
+//    public synchronized boolean alocarQuarto(Hospede hospede) {
+//        Iterator<Quarto> iterator = quartosDisponiveis.iterator();
+//        while (iterator.hasNext()) {
+//            Quarto quarto = iterator.next();
+//            if (!quarto.isOcupado() && quarto.isChaveNaRecepcao() && quarto.isLimpo()) {
+//                quarto.setOcupado(true);
+//                quarto.setChaveNaRecepcao(false);
+//                quarto.setLimpo(false);  // O quarto agora está sujo
+//                hospede.setQuartoAlocado(quarto);
+//                iterator.remove();
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+
     public synchronized void liberarQuarto(Quarto quarto) {
         if (quarto != null) {
             quarto.setOcupado(false); //Seta como Disponivel

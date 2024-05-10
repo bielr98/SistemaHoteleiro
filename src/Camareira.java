@@ -3,14 +3,11 @@ import java.util.List;
 
 public class Camareira extends Thread {
     private int idCamareira;
-    private boolean disponivel;
     private List<Quarto> quartosParaLimpar;
 
-
     public Camareira(int idCamareira) {
-        super("Camareira-" + idCamareira); // Dando um nome mais descritivo à thread
+        super("Camareira-" + idCamareira);
         this.idCamareira = idCamareira;
-        this.disponivel = true;
         this.quartosParaLimpar = new ArrayList<>();
     }
 
@@ -20,35 +17,28 @@ public class Camareira extends Thread {
         }
     }
 
-    public synchronized void setDisponivel(boolean disponivel) {
-        this.disponivel = disponivel;
-    }
-
-    public synchronized boolean isDisponivel() {
-        return disponivel;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Camareira[ID=%d, Disponível=%s]", idCamareira, disponivel ? "Sim" : "Não");
-    }
-
     @Override
     public void run() {
         while (true) {
             try {
-                if (!quartosParaLimpar.isEmpty() && disponivel) {
-                    Quarto quarto = quartosParaLimpar.remove(0); // Assume que a camareira pega o primeiro quarto na lista
-                    // Simula o processo de limpeza
-                    Thread.sleep(1000); // Simular o tempo de limpeza
-                    quarto.setChaveNaRecepcao(true); // Devolver a chave para a recepção
-                    setDisponivel(true);
+                Quarto quarto = null;
+                synchronized (this) {
+                    if (!quartosParaLimpar.isEmpty()) {
+                        quarto = quartosParaLimpar.remove(0); // Pega o primeiro quarto na lista
+                    }
                 }
-                Thread.sleep(500); // Pequena pausa
+                if (quarto != null) {
+                    Thread.sleep(1000); // Simular o tempo de limpeza
+                    synchronized (quarto) {
+                        quarto.setLimpo(true);
+                        quarto.setChaveNaRecepcao(true);
+                    }
+                    System.out.println("Quarto " + quarto.getNumeroDoQuarto() + " está limpo.");
+                }
+                Thread.sleep(500); // Pequena pausa entre as limpezas
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
-
 }
