@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Recepcionista extends Thread {
@@ -6,7 +7,7 @@ public class Recepcionista extends Thread {
     private List<Quarto> quartosDisponiveis;
 
     public Recepcionista(int idRecepcionista) {
-        super("Recepcionista-" + idRecepcionista); // Dando um nome mais descritivo à thread
+        super("Recepcionista-" + idRecepcionista);
         this.idRecepcionista = idRecepcionista;
         this.quartosDisponiveis = new ArrayList<>();
     }
@@ -18,17 +19,28 @@ public class Recepcionista extends Thread {
     }
 
     public synchronized boolean alocarQuarto(Hospede hospede) {
-        if (!quartosDisponiveis.isEmpty()) {
-            for (Quarto quarto : quartosDisponiveis) {
-                if (!quarto.isOcupado() && quarto.getHospedesAtualmente() < quarto.getCapacidadeMaxima()) {
-                    quarto.setOcupado(true);  // Definindo o quarto como ocupado
-                    hospede.setQuartoAlocado(quarto);
-                    quartosDisponiveis.remove(quarto);
-                    return true;
-                }
+        Iterator<Quarto> iterator = quartosDisponiveis.iterator();
+        while (iterator.hasNext()) {
+            Quarto quarto = iterator.next();
+            if (!quarto.isOcupado() && quarto.isChaveNaRecepcao()) {
+                quarto.setOcupado(true);
+                quarto.setChaveNaRecepcao(false);
+                hospede.setQuartoAlocado(quarto);
+                iterator.remove(); // Remove o quarto da lista de disponíveis
+                return true;
             }
         }
         return false;
+    }
+
+    public synchronized void liberarQuarto(Quarto quarto) {
+        if (quarto != null) {
+            quarto.setOcupado(false);
+            quarto.setChaveNaRecepcao(true); // Devolve a chave para a recepção
+            if (!quartosDisponiveis.contains(quarto) && quarto.isChaveNaRecepcao()) {
+                quartosDisponiveis.add(quarto); // Adiciona de volta à lista de quartos disponíveis
+            }
+        }
     }
 
     @Override
@@ -38,15 +50,13 @@ public class Recepcionista extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            // Implementar lógica de alocação de quartos, ou outras tarefas relacionadas
+        while (!Thread.interrupted()) {
             try {
-                Thread.sleep(1000); // Simulação de delay para processamento
+                Thread.sleep(1000); // Intervalo para reduzir a carga
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }
-
-
 }
